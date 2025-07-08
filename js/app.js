@@ -16,6 +16,103 @@ function formatTime() {
     return now.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
 }
 
+function parseMarkdown(text) {
+    const linkPlaceholders = [];
+    let linkIndex = 0;
+
+    text = text.replace(/<a\s+[^>]*href\s*=\s*["']([^"']+)["'][^>]*>([^<]+)<\/a>/gi, (match, href, linkText) => {
+        const placeholder = `__LINK_PLACEHOLDER_${linkIndex}__`;
+        linkPlaceholders[linkIndex] = match;
+        linkIndex++;
+        return placeholder;
+    });
+
+    text = text.replace(/&/g, '&amp;')
+               .replace(/</g, '&lt;')
+               .replace(/>/g, '&gt;')
+               .replace(/"/g, '&quot;')
+               .replace(/'/g, '&#39;');
+
+    text = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+    text = text.replace(/(?<!\*)\*([^*]+?)\*(?!\*)/g, '<em>$1</em>');
+    text = text.replace(/`(.*?)`/g, '<code>$1</code>');
+
+    text = text.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer" class="chat-link">$1</a>');
+    text = text.replace(/(^|[^"'>])(https?:\/\/[^\s<>"'\[\]]+)/gi, '$1<a href="$2" target="_blank" rel="noopener noreferrer" class="chat-link">$2</a>');
+    text = text.replace(/(^|[^"'>])(www\.[^\s<>"'\[\]]+)/gi, '$1<a href="http://$2" target="_blank" rel="noopener noreferrer" class="chat-link">$2</a>');
+
+    text = text.replace(/\n/g, '<br>');
+
+    linkPlaceholders.forEach((originalLink, index) => {
+        const placeholder = `__LINK_PLACEHOLDER_${index}__`;
+        text = text.replace(placeholder, originalLink);
+    });
+
+    return text;
+}
+
+function handleHTMLContent(content) {
+    // 🔧 Fix malformed <a> links
+    content = content.replace(
+        /(https?:\/\/[^\s"'>]+)"\s+target="_blank"\s+rel="noopener noreferrer"\s+class="chat-link">https?:\/\/[^\s<]+/gi,
+        (match) => {
+            const cleanUrl = match.match(/(https?:\/\/[^\s"'>]+)/)[1];
+            return `<a href="${cleanUrl}" target="_blank" rel="noopener noreferrer" class="chat-link">${cleanUrl}</a>`;
+        }
+    );
+
+    if (content.includes('<a ') || content.includes('<strong>') || content.includes('<em>')) {
+        const htmlPlaceholders = {};
+        let placeholderIndex = 0;
+
+        content = content.replace(/<a\s+[^>]*>.*?<\/a>/gi, (match) => {
+            const placeholder = `__HTML_LINK_${placeholderIndex}__`;
+            htmlPlaceholders[placeholder] = match;
+            placeholderIndex++;
+            return placeholder;
+        });
+
+        content = content.replace(/<(strong|em|code|b|i)\s*[^>]*>.*?<\/\1>/gi, (match) => {
+            const placeholder = `__HTML_TAG_${placeholderIndex}__`;
+            htmlPlaceholders[placeholder] = match;
+            placeholderIndex++;
+            return placeholder;
+        });
+
+        content = content.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+        content = content.replace(/(?<!\*)\*([^*]+?)\*(?!\*)/g, '<em>$1</em>');
+        content = content.replace(/`(.*?)`/g, '<code>$1</code>');
+        content = content.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer" class="chat-link">$1</a>');
+        content = content.replace(/(^|[^"'>])(https?:\/\/[^\s<>"'\[\]]+)/gi, '$1<a href="$2" target="_blank" rel="noopener noreferrer" class="chat-link">$2</a>');
+        content = content.replace(/(^|[^"'>])(www\.[^\s<>"'\[\]]+)/gi, '$1<a href="http://$2" target="_blank" rel="noopener noreferrer" class="chat-link">$2</a>');
+        content = content.replace(/\n/g, '<br>');
+
+        Object.keys(htmlPlaceholders).forEach(placeholder => {
+            content = content.replace(placeholder, htmlPlaceholders[placeholder]);
+        });
+
+        content = content.replace(/<a\s+([^>]*?)>/gi, (match, attributes) => {
+            let newAttributes = attributes;
+            if (!newAttributes.includes('class=')) {
+                newAttributes += ' class="chat-link"';
+            } else if (!newAttributes.includes('chat-link')) {
+                newAttributes = newAttributes.replace(/class\s*=\s*["']([^"']*?)["']/i, 'class="$1 chat-link"');
+            }
+            if (!newAttributes.includes('target=')) {
+                newAttributes += ' target="_blank"';
+            }
+            if (!newAttributes.includes('rel=')) {
+                newAttributes += ' rel="noopener noreferrer"';
+            }
+            return `<a ${newAttributes}>`;
+        });
+
+        return content;
+    } else {
+        return parseMarkdown(content);
+    }
+}
+
 function createMessageElement(message, sender = "user") {
     const messageEl = document.createElement("div");
     messageEl.classList.add("message", `${sender}-message`);
@@ -26,7 +123,17 @@ function createMessageElement(message, sender = "user") {
 
     const content = document.createElement("div");
     content.classList.add("message-content");
-    content.innerHTML = `<p>${message}</p>`;
+
+    if (sender === "bot") {
+        content.innerHTML = `<p>${handleHTMLContent(message)}</p>`;
+    } else {
+        const escapedMessage = message.replace(/&/g, '&amp;')
+                                      .replace(/</g, '&lt;')
+                                      .replace(/>/g, '&gt;')
+                                      .replace(/"/g, '&quot;')
+                                      .replace(/'/g, '&#39;');
+        content.innerHTML = `<p>${escapedMessage}</p>`;
+    }
 
     const time = document.createElement("span");
     time.classList.add("message-time");
@@ -114,14 +221,17 @@ quickSuggestions.forEach(btn => {
 resetChatButton.addEventListener("click", () => {
     chatMessages.innerHTML = "";
     messageHistory = [];
-    localStorage.removeItem('cheapfood_chat_id'); // Reset session
+    localStorage.removeItem('cheapfood_chat_id');
     addMessage("Hi there! I'm your CheapFood Assistant. I can help you find affordable and delicious food options nearby. Just ask me about restaurants, cuisines, or specific dishes you're craving!", "bot");
 
-    // Generate new chatId for fresh session
     const newId = crypto.randomUUID();
     localStorage.setItem('cheapfood_chat_id', newId);
-    window.location.reload();
 });
 
-// Show current time on welcome message
 document.getElementById("welcome-time").textContent = formatTime();
+
+window.testLinkProcessing = function(testText) {
+    console.log("Original text:", testText);
+    console.log("Processed text:", handleHTMLContent(testText));
+    return handleHTMLContent(testText);
+};

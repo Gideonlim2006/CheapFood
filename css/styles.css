@@ -239,41 +239,58 @@ body {
     line-height: 1.5;
 }
 
-/* Markdown formatting support */
-.message-content strong,
-.message-content b {
-    font-weight: 700;
-    color: var(--dark-text);
+/* Clickable links in chat messages */
+.message-content .chat-link {
+    color: var(--accent-orange);
+    text-decoration: underline;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    word-break: break-word;
 }
 
-.message-content em,
-.message-content i {
-    font-style: italic;
-}
-
-.message-content code {
-    background: var(--light-gray);
-    padding: 0.2rem 0.4rem;
+.message-content .chat-link:hover {
+    color: var(--accent-coral);
+    text-decoration: none;
+    background: rgba(255, 140, 66, 0.1);
+    padding: 0.1rem 0.3rem;
     border-radius: 4px;
-    font-family: 'Courier New', monospace;
-    font-size: 0.9em;
 }
 
-.message-content ul,
-.message-content ol {
-    margin: 0.5rem 0;
-    padding-left: 1.5rem;
-}
-
-.message-content li {
-    margin: 0.25rem 0;
-}
-
-.message-time {
-    font-size: 0.75rem;
+.message-content .chat-link:visited {
     color: var(--light-text);
-    align-self: flex-end;
-    margin-top: 0.25rem;
+}
+
+.message-content .chat-link:focus {
+    outline: 2px solid var(--primary-yellow);
+    outline-offset: 2px;
+}
+
+/* Style for HTML links that come directly from the bot */
+.message-content a:not(.chat-link) {
+    color: var(--accent-orange);
+    text-decoration: underline;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    word-break: break-word;
+}
+
+.message-content a:not(.chat-link):hover {
+    color: var(--accent-coral);
+    text-decoration: none;
+    background: rgba(255, 140, 66, 0.1);
+    padding: 0.1rem 0.3rem;
+    border-radius: 4px;
+}
+
+.message-content a:not(.chat-link):visited {
+    color: var(--light-text);
+}
+
+.message-content a:not(.chat-link):focus {
+    outline: 2px solid var(--primary-yellow);
+    outline-offset: 2px;
 }
 
 /* Typing Indicator */
