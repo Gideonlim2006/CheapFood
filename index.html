@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="SmartSave: CheapFood - Your AI assistant for finding affordable and tasty food options">
+    <title>SmartSave: CheapFood - AI Food Assistant</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <h1 class="app-title">SmartSave: CheapFood</h1>
+            <p class="tagline">Your AI assistant for finding cheap and tasty food nearby!</p>
+        </div>
+    </header>
+
+    <main class="main-content">
+        <div class="container">
+            <div class="chat-container">
+                <!-- Chat Header -->
+                <div class="chat-header">
+                    <div class="bot-avatar">🍔</div>
+                    <div class="bot-info">
+                        <h2 class="bot-name">CheapFood Assistant</h2>
+                        <p class="bot-status" id="bot-status">Online - Ready to help!</p>
+                    </div>
+                    <button 
+                        type="button" 
+                        id="reset-chat" 
+                        class="reset-chat-btn"
+                        aria-label="Clear chat conversation"
+                        title="Clear chat"
+                    >
+                        🔄
+                    </button>
+                </div>
+
+                <!-- Chat Messages -->
+                <div class="chat-messages" id="chat-messages" aria-live="polite" aria-label="Chat conversation">
+                    <div class="message bot-message">
+                        <div class="message-avatar">🍔</div>
+                        <div class="message-content">
+                            <p>Hi there! I'm your CheapFood Assistant. I can help you find affordable and delicious food options nearby. Just ask me about restaurants, cuisines, or specific dishes you're craving!</p>
+                        </div>
+                        <span class="message-time" id="welcome-time"></span>
+                    </div>
+                </div>
+
+                <!-- Typing Indicator -->
+                <div class="typing-indicator hidden" id="typing-indicator">
+                    <div class="message-avatar">🍔</div>
+                    <div class="typing-dots">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </div>
+                </div>
+
+                <!-- Chat Input -->
+                <div class="chat-input-container">
+                    <div class="chat-input-wrapper">
+                        <label for="chat-input" class="visually-hidden">Type your message</label>
+                        <input 
+                            type="text" 
+                            id="chat-input" 
+                            class="chat-input"
+                            placeholder="Ask me about food options, restaurants, or cuisines..."
+                            aria-describedby="chat-help"
+                            autocomplete="off"
+                        >
+                        <button 
+                            type="button" 
+                            id="send-button" 
+                            class="send-button"
+                            aria-label="Send message"
+                            disabled
+                        >
+                            <span class="send-icon">➤</span>
+                        </button>
+                    </div>
+                    <p id="chat-help" class="chat-help">
+                        Press Enter to send • Try asking about "Food near bedok"
+                    </p>
+                </div>
+
+                <!-- Quick Suggestions -->
+                <div class="quick-suggestions" id="quick-suggestions">
+                    <p class="suggestions-label">Quick suggestions:</p>
+                    <div class="suggestions-list">
+                        <button class="suggestion-btn" data-suggestion="Best student meal deals under $5">💰 Meals under $5</button>
+                        <button class="suggestion-btn" data-suggestion="Healthy food options for students">🥗 Healthy options</button>
+                        <button class="suggestion-btn" data-suggestion="Late night food delivery">🌙 Late night food</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Flowise Chatbot Integration -->
+    <script type="module">
+        // Flowise chatbot configuration will be added here
+        // Replace with your actual Flowise endpoint
+        window.FLOWISE_CONFIG = {
+            chatflowid: "10b2d13f-5baf-42c5-b4c8-244a67aeff54", // Replace with your actual chatflow ID
+            apiHost: "https://gideonlim-flowise.hf.space", // Replace with your Flowise instance URL
+            theme: {
+                button: {
+                    backgroundColor: "#FFD400",
+                    right: 20,
+                    bottom: 20,
+                    size: "medium",
+                    iconColor: "#2C2C2C"
+                },
+                chatWindow: {
+                    showTitle: true,
+                    title: "CheapFood Assistant",
+                    titleAvatarSrc: "🍔",
+                    showAgentMessages: true,
+                    welcomeMessage: "Hi! I'm here to help you find affordable food options. What are you looking for?",
+                    backgroundColor: "#ffffff",
+                    height: 600,
+                    width: 400,
+                    fontSize: 16,
+                    botMessage: {
+                        backgroundColor: "#f7f8ff",
+                        textColor: "#303235",
+                        showAvatar: true,
+                        avatarSrc: "🍔"
+                    },
+                    userMessage: {
+                        backgroundColor: "#FFD400",
+                        textColor: "#2C2C2C",
+                        showAvatar: true,
+                        avatarSrc: "👤"
+                    },
+                    textInput: {
+                        placeholder: "Ask about food options...",
+                        backgroundColor: "#ffffff",
+                        textColor: "#303235",
+                        sendButtonColor: "#FFD400"
+                    }
+                }
+            }
+        };
+    </script>
+    <script src="js/app.js"></script>
+</body>
+</html>

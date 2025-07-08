@@ -1,0 +1,20 @@
+{
+  "name": "smartsave-cheapfood",
+  "version": "1.0.0",
+  "description": "SmartSave: CheapFood - AI-powered chatbot for finding affordable food options for students",
+  "main": "index.html",
+  "scripts": {
+    "start": "live-server --port=5501 --host=localhost",
+    "dev": "live-server --port=5501 --host=localhost --open=/index.html"
+  },
+  "keywords": [
+    "food",
+    "student",
+    "chatbot",
+    "flowise",
+    "ai"
+  ],
+  "author": "Student Developer",
+  "license": "MIT",
+  "homepage": "./index.html"
+}
