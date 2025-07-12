@@ -8,6 +8,8 @@ const chatMessages = document.getElementById("chat-messages");
 const typingIndicator = document.getElementById("typing-indicator");
 const quickSuggestions = document.querySelectorAll(".suggestion-btn");
 const resetChatButton = document.getElementById("reset-chat");
+const hamburgerBtn = document.getElementById("hamburger-btn");
+const dropdownMenu = document.getElementById("dropdown-menu");
 
 let messageHistory = [];
 
@@ -235,3 +237,55 @@ window.testLinkProcessing = function(testText) {
     console.log("Processed text:", handleHTMLContent(testText));
     return handleHTMLContent(testText);
 };
+
+// Hamburger menu functionality
+hamburgerBtn.addEventListener("click", () => {
+    const isActive = hamburgerBtn.classList.contains("active");
+    
+    if (isActive) {
+        // Close menu
+        hamburgerBtn.classList.remove("active");
+        dropdownMenu.classList.remove("active");
+        hamburgerBtn.setAttribute("aria-expanded", "false");
+    } else {
+        // Open menu
+        hamburgerBtn.classList.add("active");
+        dropdownMenu.classList.add("active");
+        hamburgerBtn.setAttribute("aria-expanded", "true");
+    }
+});
+
+// Close menu when clicking outside
+document.addEventListener("click", (event) => {
+    if (!hamburgerBtn.contains(event.target) && !dropdownMenu.contains(event.target)) {
+        hamburgerBtn.classList.remove("active");
+        dropdownMenu.classList.remove("active");
+        hamburgerBtn.setAttribute("aria-expanded", "false");
+    }
+});
+
+// Close menu when pressing Escape key
+document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape" && dropdownMenu.classList.contains("active")) {
+        hamburgerBtn.classList.remove("active");
+        dropdownMenu.classList.remove("active");
+        hamburgerBtn.setAttribute("aria-expanded", "false");
+        hamburgerBtn.focus(); // Return focus to button
+    }
+});
+
+// Keyboard navigation for menu items
+dropdownMenu.addEventListener("keydown", (event) => {
+    const menuLinks = dropdownMenu.querySelectorAll("a:not(.disabled-link)");
+    const currentIndex = Array.from(menuLinks).indexOf(document.activeElement);
+    
+    if (event.key === "ArrowDown") {
+        event.preventDefault();
+        const nextIndex = (currentIndex + 1) % menuLinks.length;
+        menuLinks[nextIndex].focus();
+    } else if (event.key === "ArrowUp") {
+        event.preventDefault();
+        const prevIndex = currentIndex <= 0 ? menuLinks.length - 1 : currentIndex - 1;
+        menuLinks[prevIndex].focus();
+    }
+});
